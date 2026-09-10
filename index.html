@@ -42,6 +42,24 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 window.db = firebase.firestore();
 console.log("✅ REAL Firebase Connected");
+  // REAL SYNC - Sab users ko same links dikhenge
+window.saveLinkToFirebase = async function(linkData){
+  try {
+    await window.db.collection("links").add({
+      ...linkData,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    console.log("✅ Link saved to REAL Firebase!");
+  } catch(e){ console.error(e); }
+}
+
+// Load REAL links from Firebase on page load
+window.db.collection("links").orderBy("createdAt","desc").onSnapshot((snap)=>{
+  const realLinks = snap.docs.map(d=> ({id:d.id, ...d.data()}));
+  console.log("🔥 REAL Links loaded:", realLinks.length);
+  // Aapki website ka data ab real hai
+  localStorage.setItem("zedlinker_real_links", JSON.stringify(realLinks));
+});
   </script>
   <script>(function(){function m(a){var h=a.getAttribute("href");if(!h)return;try{var u=new URL(h,document.baseURI);if((u.protocol==="http:"||u.protocol==="https:")&&u.host!==location.host){a.target="_blank";a.rel="noopener noreferrer";}}catch(e){}}function s(){document.querySelectorAll("a[href]").forEach(m);}if(document.readyState!=="loading"){s();}else{document.addEventListener("DOMContentLoaded",s);}document.addEventListener("click",function(e){var a=e.target&&e.target.closest&&e.target.closest("a[href]");if(a){m(a);}},true);})();</script>
   
